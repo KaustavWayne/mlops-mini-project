@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/232295961444592280/f84284a2aff54545aaeff86faca8130a/artifacts
+deleted_time: 1758792168771
+end_time: 1758790970961
+entry_point_name: ''
+experiment_id: '232295961444592280'
+lifecycle_stage: deleted
+run_id: f84284a2aff54545aaeff86faca8130a
+run_name: efficient-owl-80
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758790929921
+status: 3
+tags: []
+user_id: Kaustav

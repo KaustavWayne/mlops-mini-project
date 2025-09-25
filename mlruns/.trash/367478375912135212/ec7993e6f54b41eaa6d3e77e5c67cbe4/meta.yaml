@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/367478375912135212/ec7993e6f54b41eaa6d3e77e5c67cbe4/artifacts
+deleted_time: 1758790270333
+end_time: 1758790168584
+entry_point_name: ''
+experiment_id: '367478375912135212'
+lifecycle_stage: deleted
+run_id: ec7993e6f54b41eaa6d3e77e5c67cbe4
+run_name: enthused-fish-636
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758790156438
+status: 3
+tags: []
+user_id: Kaustav

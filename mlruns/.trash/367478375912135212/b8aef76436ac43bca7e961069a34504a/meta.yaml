@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/367478375912135212/b8aef76436ac43bca7e961069a34504a/artifacts
+deleted_time: 1758790270333
+end_time: 1758789758574
+entry_point_name: ''
+experiment_id: '367478375912135212'
+lifecycle_stage: deleted
+run_id: b8aef76436ac43bca7e961069a34504a
+run_name: smiling-shark-942
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758789737351
+status: 3
+tags: []
+user_id: Kaustav

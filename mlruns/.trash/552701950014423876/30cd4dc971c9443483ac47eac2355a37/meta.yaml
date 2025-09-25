@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/552701950014423876/30cd4dc971c9443483ac47eac2355a37/artifacts
+deleted_time: 1758796855797
+end_time: 1758796646032
+entry_point_name: ''
+experiment_id: '552701950014423876'
+lifecycle_stage: deleted
+run_id: 30cd4dc971c9443483ac47eac2355a37
+run_name: bedecked-finch-95
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758796645960
+status: 3
+tags: []
+user_id: Kaustav
