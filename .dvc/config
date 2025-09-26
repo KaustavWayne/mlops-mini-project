@@ -1,4 +1,3 @@
-[core]
-    remote = myremote
-['remote "myremote"']
-    url = https://dagshub.com/KaustavWayne/mlops-mini-project.s3
+['remote "origin"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/KaustavWayne/mlops-mini-project.s3
