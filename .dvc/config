@@ -1,4 +1,4 @@
 [core]
     remote = myremote
 ['remote "myremote"']
-    url = C:\Users\Dell\AppData\Local\Temp
+    url = https://dagshub.com/KaustavWayne/mlops-mini-project.s3
