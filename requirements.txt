@@ -1,9 +1,4 @@
-# Core AWS packages
-boto3==1.34.162
-botocore==1.34.162
-aiobotocore==2.13.0
-
-# DVC & storage
+# Core DVC packages
 dvc==3.63.0
 dvc-data==3.16.12
 dvc-http==2.32.0
@@ -13,6 +8,14 @@ dvc-s3==3.2.2
 dvc-studio-client==0.22.0
 dvc-task==0.40.2
 
+# AWS SDK
+boto3==1.34.162
+botocore==1.34.162
+s3transfer==0.10.4
+jmespath==1.0.1
+python-dateutil==2.9.0.post0
+urllib3==2.5.0
+
 # MLflow
 mlflow==2.22.2
 mlflow-skinny==2.22.2
@@ -21,22 +24,18 @@ mlflow-tracing==3.4.0
 # Web frameworks
 fastapi==0.117.1
 Flask==3.1.2
-
-# HTTP clients
-aiohttp==3.12.15
-aiohttp-retry==2.9.1
 httpx==0.28.1
 httpx-sse==0.4.1
-aiohappyeyeballs==2.6.1
-
-# Async & concurrency
+aiohttp==3.12.15
+aiohttp-retry==2.9.1
 anyio==4.11.0
 aiosignal==1.4.0
-asyncssh==2.21.0
-sniffio==1.3.1
 nest-asyncio==1.6.0
+sniffio==1.3.1
+asyncssh==2.21.0
+aiohappyeyeballs==2.6.1
 
-# Data & scientific
+# Data science stack
 numpy==2.3.3
 pandas==2.3.2
 pyarrow==19.0.1
@@ -44,17 +43,17 @@ scipy==1.11.2
 matplotlib==3.10.6
 seaborn==0.12.2
 
-# Dataclasses & pydantic
+# Pydantic & settings
 pydantic==2.11.9
 pydantic-core==2.33.2
 pydantic-settings==2.10.1
 dataclasses-json==0.6.7
 
-# SQL & DB
+# Database
 SQLAlchemy==2.0.43
 alembic==1.16.5
 
-# Dev & utils
+# Utilities
 click==8.3.0
 click-plugins==1.1.1.2
 click-didyoumean==0.3.1
@@ -71,13 +70,13 @@ typing-extensions>=4.2
 attrs==25.3.0
 importlib-metadata==8.7.0
 
-# Git / repo management
+# Git & GTO
 GitPython==3.1.45
 gitdb==4.0.12
 dulwich==0.24.1
 gto==1.8.0
 
-# Others
+# Misc
 six==1.17.0
 cffi==1.16.0
 cryptography==45.0.7
