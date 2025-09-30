@@ -82,10 +82,25 @@ jobs:
         if: success()
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
         run: |
           pip install --upgrade huggingface_hub
-          hf auth login --token $HF_TOKEN
-          hf repo create my-flask-app --type space --exist-ok
-          hf space deploy-docker \
-            --name my-flask-app \
-            --image ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
+          huggingface-cli login --token $HF_TOKEN
+
+          # Create the Space if it doesn’t exist (Docker type)
+          huggingface-cli repo create my-flask-app --type space --space-type docker --exist-ok
+
+          # Clone Space repo
+          git config --global user.email "ci-bot@example.com"
+          git config --global user.name "ci-bot"
+          git clone https://huggingface.co/spaces/$HF_USERNAME/my-flask-app
+          cd my-flask-app
+
+          # Write Dockerfile that pulls directly from your DockerHub image
+          echo "FROM ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest" > Dockerfile
+          echo "EXPOSE 7860" >> Dockerfile
+          echo 'CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]' >> Dockerfile
+
+          git add Dockerfile
+          git commit -m "Deploy latest DockerHub image"
+          git push
