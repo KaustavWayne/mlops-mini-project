@@ -1,20 +1,26 @@
 name: CI Pipeline
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   project-testing:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout code
+      # 1️⃣ Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: setup python
+      # 2️⃣ Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.10'
 
+      # 3️⃣ Cache pip dependencies
       - name: Cache pip dependencies
         uses: actions/cache@v3
         with:
@@ -23,34 +29,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: install dependencies
-        run: |
-          pip install -r requirements.txt
+      # 4️⃣ Install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: run pipeline
+      # 5️⃣ Run pipeline (DVC repro)
+      - name: Run pipeline
         env:
           DAGSHUB_PAT: ${{ secrets.DAGSHUB_PAT }}
-        run: |
-          dvc repro
+        run: dvc repro
 
+      # 6️⃣ Run model tests
       - name: Run model tests
         env:
           DAGSHUB_PAT: ${{ secrets.DAGSHUB_PAT }}
-        run: |
-          python -m unittest tests/test_model.py
+        run: python -m unittest tests/test_model.py
 
+      # 7️⃣ Promote model to production
       - name: Promote model to production
         if: success()
         env:
           DAGSHUB_PAT: ${{ secrets.DAGSHUB_PAT }}
         run: python scripts/promote_model.py
 
+      # 8️⃣ Run Flask app tests
       - name: Run Flask app tests
         if: success()
         env:
           DAGSHUB_PAT: ${{ secrets.DAGSHUB_PAT }}
         run: python -m unittest tests/test_flask_app.py
 
+      # 9️⃣ Log in to Docker Hub
       - name: Log in to Docker Hub
         if: success()
         uses: docker/login-action@v2
@@ -58,12 +67,23 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      # 🔟 Build Docker image
       - name: Build Docker image
         if: success()
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest .
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest .
 
+      # 1️⃣1️⃣ Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         if: success()
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
+
+      # 1️⃣2️⃣ Deploy to Hugging Face Space
+      - name: Deploy to Hugging Face
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Hugging Face token
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
+          pip install huggingface_hub
+          huggingface-cli login --token $HF_TOKEN
+          huggingface-cli repo create my-flask-app --type space --space-type docker --exist-ok
+          huggingface-cli repo push my-flask-app --repo-type space

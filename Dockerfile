@@ -1,15 +1,13 @@
 FROM python:3.9
 
-WORKDIR /app 
+WORKDIR /app
 
-COPY flask_app/ /app/ 
+COPY flask_app/ /app/
+COPY models/vectorizer.pkl /app/models/vectorizer.pkl
 
-COPY models/vectorizer.pkl /app/models/vectorizer.pkl 
-
-RUN pip install -r requirements.txt 
-
+RUN pip install -r requirements.txt
 RUN python -m nltk.downloader stopwords wordnet
 
-EXPOSE 5000 
+EXPOSE 7860
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
