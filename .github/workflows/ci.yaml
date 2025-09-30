@@ -86,15 +86,14 @@ jobs:
         run: |
           pip install --upgrade huggingface_hub
 
-          # Authenticate
-          echo "$HF_TOKEN" | hf auth login
+          # Authenticate (non-interactive, no prompt)
+          huggingface-cli login --token $HF_TOKEN --add-to-git-credential --non-interactive
 
           # Create the Space if it doesn’t exist (Docker SDK type)
-          hf api create-repo \
-            --repo-id $HF_USERNAME/my-flask-app \
+          huggingface-cli repo create $HF_USERNAME/my-flask-app \
             --type space \
             --space-sdk docker \
-            --exist-ok
+            --yes
 
           # Clone Space repo
           git config --global user.email "ci-bot@example.com"
