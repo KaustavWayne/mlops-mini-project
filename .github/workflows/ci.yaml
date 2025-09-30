@@ -85,10 +85,16 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
         run: |
           pip install --upgrade huggingface_hub
-          huggingface-cli login --token $HF_TOKEN
 
-          # Create the Space if it doesn’t exist (Docker type)
-          huggingface-cli repo create my-flask-app --type space --space-type docker --exist-ok
+          # Authenticate
+          echo "$HF_TOKEN" | hf auth login
+
+          # Create the Space if it doesn’t exist (Docker SDK type)
+          hf api create-repo \
+            --repo-id $HF_USERNAME/my-flask-app \
+            --type space \
+            --space-sdk docker \
+            --exist-ok
 
           # Clone Space repo
           git config --global user.email "ci-bot@example.com"
@@ -102,5 +108,5 @@ jobs:
           echo 'CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]' >> Dockerfile
 
           git add Dockerfile
-          git commit -m "Deploy latest DockerHub image"
+          git commit -m "Deploy latest DockerHub image" || echo "No changes to commit"
           git push
