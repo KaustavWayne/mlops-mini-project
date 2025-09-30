@@ -77,13 +77,15 @@ jobs:
         if: success()
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
 
-      # 1️⃣2️⃣ Deploy to Hugging Face Space
-      - name: Deploy to Hugging Face
+      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space
+      - name: Deploy Docker image to Hugging Face Space
         if: success()
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Hugging Face token
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          pip install huggingface_hub
-          huggingface-cli login --token $HF_TOKEN
-          huggingface-cli repo create my-flask-app --type space --space-type docker --exist-ok
-          huggingface-cli repo push my-flask-app --repo-type space
+          pip install --upgrade huggingface_hub
+          hf auth login --token $HF_TOKEN
+          hf repo create my-flask-app --type space --exist-ok
+          hf space deploy-docker \
+            --name my-flask-app \
+            --image ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
