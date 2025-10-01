@@ -31,7 +31,9 @@ jobs:
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install --upgrade huggingface_hub
 
       # 5️⃣ Run pipeline (DVC repro)
       - name: Run pipeline
@@ -77,35 +79,45 @@ jobs:
         if: success()
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
 
-      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space
+      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (no clone)
       - name: Deploy Docker image to Hugging Face Space
         if: success()
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          pip install --upgrade huggingface_hub
+          python - <<EOF
+          from huggingface_hub import HfApi
+          import os
 
-          # Authenticate (non-interactive)
-          echo "$HF_TOKEN" | huggingface-cli login --stdin
+          HF_USERNAME = os.environ["HF_USERNAME"]
+          HF_TOKEN = os.environ["HF_TOKEN"]
+          DOCKER_HUB_USERNAME = os.environ["DOCKER_HUB_USERNAME"]
+          repo_name = "my-flask-app"
 
-          # Create the Space if it doesn’t exist (Docker SDK type)
-          huggingface-cli repo create $HF_USERNAME/my-flask-app \
-            --type space \
-            --space-sdk docker \
-            --yes
+          api = HfApi()
+          # Create the Space if it doesn’t exist
+          api.create_repo(
+              repo_id=f"{HF_USERNAME}/{repo_name}",
+              repo_type="space",
+              space_sdk="docker",
+              exist_ok=True,
+              token=HF_TOKEN
+          )
 
-          # Clone Space repo
-          git config --global user.email "ci-bot@example.com"
-          git config --global user.name "ci-bot"
-          git clone https://huggingface.co/spaces/$HF_USERNAME/my-flask-app
-          cd my-flask-app
+          # Write and upload Dockerfile directly (no clone)
+          dockerfile_content = f"""
+          FROM {DOCKER_HUB_USERNAME}/emotion2:latest
+          EXPOSE 7860
+          CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
+          """
 
-          # Write Dockerfile that pulls directly from your DockerHub image
-          echo "FROM ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest" > Dockerfile
-          echo "EXPOSE 7860" >> Dockerfile
-          echo 'CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]' >> Dockerfile
-
-          git add Dockerfile
-          git commit -m "Deploy latest DockerHub image" || echo "No changes to commit"
-          git push
+          api.upload_file(
+              path_or_fileobj=dockerfile_content.encode("utf-8"),
+              path_in_repo="Dockerfile",
+              repo_id=f"{HF_USERNAME}/{repo_name}",
+              repo_type="space",
+              token=HF_TOKEN
+          )
+          EOF
