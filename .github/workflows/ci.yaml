@@ -79,13 +79,14 @@ jobs:
         if: success()
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
 
-      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (direct upload with NLTK)
+      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (with DAGSHUB_PAT & NLTK)
       - name: Deploy Docker image to Hugging Face Space
         if: success()
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DAGSHUB_PAT: ${{ secrets.DAGSHUB_PAT }}
         run: |
           python - <<EOF
           from huggingface_hub import HfApi
@@ -94,6 +95,7 @@ jobs:
           HF_USERNAME = os.environ["HF_USERNAME"]
           HF_TOKEN = os.environ["HF_TOKEN"]
           DOCKER_HUB_USERNAME = os.environ["DOCKER_HUB_USERNAME"]
+          DAGSHUB_PAT = os.environ["DAGSHUB_PAT"]
           repo_name = "my-flask-app"
 
           api = HfApi()
@@ -107,10 +109,13 @@ jobs:
               token=HF_TOKEN
           )
 
-          # Write Dockerfile with NLTK downloads included
+          # Write Dockerfile with NLTK downloads and DAGSHUB_PAT environment
           dockerfile_content = f"""
           # Dockerfile for Hugging Face
           FROM {DOCKER_HUB_USERNAME}/emotion2:latest
+
+          # Inject DAGSHUB_PAT into container
+          ENV DAGSHUB_PAT={DAGSHUB_PAT}
 
           # Ensure NLTK stopwords & wordnet are available
           ENV NLTK_DATA=/usr/local/share/nltk_data
