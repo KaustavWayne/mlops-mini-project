@@ -79,7 +79,7 @@ jobs:
         if: success()
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
 
-      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (no clone)
+      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (direct upload)
       - name: Deploy Docker image to Hugging Face Space
         if: success()
         env:
@@ -97,6 +97,7 @@ jobs:
           repo_name = "my-flask-app"
 
           api = HfApi()
+
           # Create the Space if it doesn’t exist
           api.create_repo(
               repo_id=f"{HF_USERNAME}/{repo_name}",
@@ -106,13 +107,14 @@ jobs:
               token=HF_TOKEN
           )
 
-          # Write and upload Dockerfile directly (no clone)
+          # Write Dockerfile
           dockerfile_content = f"""
           FROM {DOCKER_HUB_USERNAME}/emotion2:latest
           EXPOSE 7860
           CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
           """
 
+          # Upload Dockerfile to Hugging Face Space
           api.upload_file(
               path_or_fileobj=dockerfile_content.encode("utf-8"),
               path_in_repo="Dockerfile",
