@@ -79,7 +79,7 @@ jobs:
         if: success()
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/emotion2:latest
 
-      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (direct upload)
+      # 1️⃣2️⃣ Deploy Docker image to Hugging Face Space (direct upload with NLTK)
       - name: Deploy Docker image to Hugging Face Space
         if: success()
         env:
@@ -107,10 +107,19 @@ jobs:
               token=HF_TOKEN
           )
 
-          # Write Dockerfile
+          # Write Dockerfile with NLTK downloads included
           dockerfile_content = f"""
+          # Dockerfile for Hugging Face
           FROM {DOCKER_HUB_USERNAME}/emotion2:latest
+
+          # Ensure NLTK stopwords & wordnet are available
+          ENV NLTK_DATA=/usr/local/share/nltk_data
+          RUN python -m nltk.downloader stopwords wordnet -d /usr/local/share/nltk_data
+
+          # Expose the port HF expects
           EXPOSE 7860
+
+          # Start Flask app via gunicorn
           CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
           """
 
